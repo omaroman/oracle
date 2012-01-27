@@ -1,0 +1,14 @@
+# Application dependencies
+
+require:
+    - play
+    - play -> paginate 0.12
+
+    - oracle -> oracle
+
+repositories:
+    - test-oracle:
+        type:       local
+        artifact:   ${application.path}/../../../[module]
+        contains:
+            - oracle -> *

@@ -1,0 +1,10 @@
+@SequenceGenerator(name="AVISOS_SISTEMA_SEQ", sequenceName="PLATAFORMAWEB.AVISOS_SISTEMA_SEQ", initialValue=1, allocationSize=1)
+@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="AVISOS_SISTEMA_SEQ")
+@Id Long id;
+
+CREATE SEQUENCE supplier_seq
+   MINVALUE 1
+   MAXVALUE 999999999999999999999999999
+   START WITH 1
+   INCREMENT BY 1
+   CACHE 20;

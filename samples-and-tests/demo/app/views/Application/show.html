@@ -1,0 +1,13 @@
+#{extends 'layout/layout.html'/}
+#{set 'title'}
+    &{'Application.show.title'}
+#{/set}
+
+#{include 'layout/_notify_messages.html' /}<!-- Success/Error Messages -->
+
+<div>
+    #{displayUser user:user, user_profile:user_profile, user_address:user_address /}
+</div>
+
+<p><a href="@{Application.index()}">&{'Application.index.home'}</a></p>
+<p><a href="@{Application.list()}">&{'Application.list.title'}</a></p>

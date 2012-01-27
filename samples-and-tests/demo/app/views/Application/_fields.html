@@ -1,0 +1,44 @@
+#{field 'person.id'}
+    <input type="hidden" id="${field.id}" name="${field.name}" value="${field.value}" >
+#{/field}
+
+<div class="field">
+    #{field 'user.username'}
+        <label>&{field.name }</label>
+        %{ value = field.value ?: flash[field.name] }%
+        <input type="text" id="${field.id}" name="${field.name}" value="${value}" />
+        <span class="error">#{error field.name /}</span>
+    #{/field}
+</div>
+*{<div class="field">}*
+    *{#{field 'user.email'}}*
+        *{<label>&{field.name }</label>}*
+        *{%{ value = field.value ?: flash[field.name] }%}*
+        *{<input type="text" id="${field.id}" name="${field.name}" value="${value}" />}*
+        *{<span class="error">#{error field.name /}</span>}*
+    *{#{/field}}*
+*{</div>}*
+<div class="field">
+    #{field 'user_profile.name'}
+        <label>&{field.name }</label>
+        %{ value = field.value ?: flash[field.name] }%
+        <input type="text" id="${field.id}" name="${field.name}" value="${value}" />
+        <span class="error">#{error field.name /}</span>
+    #{/field}
+</div>
+<div class="field">
+    #{field 'user_address.street'}
+        <label>&{field.name }</label>
+        %{ value = field.value ?: flash[field.name] }%
+        <input type="text" id="${field.id}" name="${field.name}" value="${value}" />
+        <span class="error">#{error field.name /}</span>
+    #{/field}
+</div>
+<div class="field">
+    #{field 'user_address.outer_number'}
+        <label>&{field.name }</label>
+        %{ value = field.value ?: flash[field.name] }%
+        <input type="text" id="${field.id}" name="${field.name}" value="${value}" />
+        <span class="error">#{error field.name /}</span>
+    #{/field}
+</div>

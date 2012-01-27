@@ -1,0 +1,16 @@
+
+*{div to success messages}*
+#{if flash.success }
+    <div class="formee-msg-success">
+        *{<p>${flash.success}</p>}*
+        <h3>&{flash.success}</h3>
+    </div>
+#{/if}
+
+*{div to error messages}*
+#{if flash.error }
+    <div class="formee-msg-error">
+        *{<p>${flash.error}</p>}*
+        <h3>&{flash.error}</h3>
+    </div>
+#{/if}

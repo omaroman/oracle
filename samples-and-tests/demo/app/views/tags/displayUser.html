@@ -1,0 +1,56 @@
+<div class="field model clearfix">
+    #{field '_user.id'}
+        %{label_name = (field.name).substring(1) }%
+        <label class="model-header col col_2">&{label_name}: </label>
+        <span class="model-field col col_7">${_user.id}</span>
+    #{/field}
+</div>
+<div class="field model clearfix">
+    #{field '_user.username'}
+        %{label_name = (field.name).substring(1) }%
+        <label class="model-header col col_2">&{label_name}: </label>
+        <span class="model-field col col_7">${field.value }</span>
+    #{/field}
+</div>
+*{<div class="field model clearfix">}*
+    *{#{field '_user.email'}}*
+        *{%{label_name = (field.name).substring(1) }%}*
+        *{<label class="model-header col col_2">&{label_name}: </label>}*
+        *{<span class="model-field col col_7">${field.value }</span>}*
+    *{#{/field}}*
+*{</div>}*
+<div class="field model clearfix">
+    #{field '_user_profile.id'}
+        %{label_name = (field.name).substring(1) }%
+        <label class="model-header col col_2">&{label_name}: </label>
+        <span class="model-field col col_7">${_user_profile.id}</span>
+    #{/field}
+</div>
+<div class="field model clearfix">
+    #{field '_user_profile.name'}
+        %{label_name = (field.name).substring(1) }%
+        <label class="model-header col col_2">&{label_name}: </label>
+        <span class="model-field col col_7">${field.value }</span>
+    #{/field}
+</div>
+<div class="field model clearfix">
+    #{field '_user_address.id'}
+        %{label_name = (field.name).substring(1) }%
+        <label class="model-header col col_2">&{label_name}: </label>
+        <span class="model-field col col_7">${_user_address.id}</span>
+    #{/field}
+</div>
+<div class="field model clearfix">
+    #{field '_user_address.street'}
+        %{label_name = (field.name).substring(1) }%
+        <label class="model-header col col_2">&{label_name}: </label>
+        <span class="model-field col col_7">${field.value }</span>
+    #{/field}
+</div>
+<div class="field model clearfix">
+    #{field '_user_address.outer_number'}
+        %{label_name = (field.name).substring(1) }%
+        <label class="model-header col col_2">&{label_name}: </label>
+        <span class="model-field col col_7">${field.value }</span>
+    #{/field}
+</div>

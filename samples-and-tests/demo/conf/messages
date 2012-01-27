@@ -1,0 +1,30 @@
+# You can specialize this file for each language.
+# For example, for French create a messages.fr file
+#
+
+validation.unique=Must be unique
+
+user.id=User ID
+user.username=Username
+user.email=E-mail
+user_profile.id=Profile ID
+user_profile.name=Name
+user_profile.street=Street
+user_profile.outer_number=Outer Number
+user_profile.inner_number=Inner Number
+user_address.id=Address ID
+user_address.street=Street
+user_address.outer_number=Number
+
+application.sign.error=Can fix this fields?
+application.sign.success=Register is completed
+
+Application.index.title=Oracle App Sequences Test 2
+Application.index.home=Home
+
+Application.signUp.title=Add new register
+Application.signUp.submit=Register
+
+Application.list.title=List
+
+Application.show.title=Show

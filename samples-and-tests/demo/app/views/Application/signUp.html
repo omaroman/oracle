@@ -1,0 +1,22 @@
+#{extends 'layout/layout.html'/}
+#{set 'title'}
+    &{'Application.signUp.title'}
+#{/set}
+
+#{form @Application.register() }
+
+    <fieldset>
+        <legend>&{'Application.signUp.title'}</legend>
+
+            #{include 'layout/_notify_messages.html' /}<!-- Success/Error Messages -->
+
+            #{include 'Application/_fields.html' /}<!-- Model fields -->
+
+            <div>
+                <input type="submit" name="register" value="&{'Application.signUp.submit'}" />
+            </div>
+    </fieldset>
+
+#{/form}
+
+<p><a href="@{Application.index()}">&{'Application.index.home'}</a></p>

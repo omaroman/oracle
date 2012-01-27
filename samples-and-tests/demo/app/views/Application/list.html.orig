@@ -1,0 +1,51 @@
+#{extends 'layout/layout.html'/}
+#{set 'title'}
+    &{'Application.list.title'}
+#{/set}
+
+#{include 'layout/_notify_messages.html' /}<!-- Success/Error Messages -->
+
+<div>
+    #{list items:users, as:'user' }
+        %{ user_profile = models.UserProfile.findByUserId(user.id) }%
+        %{ user_address = models.UserAddress.findByUserId(user.id) }%
+        <div>
+        *{#{displayUserProfile user:user, user_profile:user_profile /}}*
+        *{<div class="field model clearfix">}*
+            #{field 'user.id'}
+                <label class="model-header col col_2">&{field.name}: </label>
+                <b><span class="model-field col col_7">${field.value }    </span></b>
+            #{/field}
+        *{</div>}*
+        *{<div class="field model clearfix">}*
+            #{field 'user_profile.id'}
+                <label class="model-header col col_2">&{field.name}: </label>
+                <b><span class="model-field col col_7">${field.value }    </span></b>
+            #{/field}
+        *{</div>}*
+        *{<div class="field model clearfix">}*
+            #{field 'user_address.id'}
+                <label class="model-header col col_2">&{field.name}: </label>
+                <b><span class="model-field col col_7">${field.value }    </span></b>
+            #{/field}
+        *{</div>}*
+        *{<div class="field model clearfix">}*
+            #{field 'user.username'}
+                <label class="model-header col col_2">&{field.name}: </label>
+                <b><span class="model-field col col_7">${field.value }    </span></b>
+            #{/field}
+        *{</div>}*
+        *{<div class="field model clearfix">}*
+            *{#{field 'user_profile.street'}}*
+                *{<label class="model-header col col_2">&{field.name}: </label>}*
+                *{<b><span class="model-field col col_7">${field.value } </span></b>}*
+            *{#{/field}}*
+        *{</div>}*
+
+            <a href="@{Application.show(user.id)}">&{'Application.show.title'}</a>
+        </div>
+    #{/list}
+</div>
+
+<p><a href="@{Application.signUp()}">&{'Application.signUp.title'}</a></p>
+<p><a href="@{Application.index()}">&{'Application.index.home'}</a></p>
