@@ -2,12 +2,12 @@
 
 require:
     - play
-    - play -> paginate 0.12
+    - play -> paginate head
 
     - oracle -> oracle
 
 repositories:
-    - test-oracle:
+    - test-modules:
         type:       local
         artifact:   ${application.path}/../../../[module]
         contains:

@@ -16,15 +16,22 @@ import javassist.bytecode.annotation.StringMemberValue;
 import net.parnassoft.playutilities.EnhancerUtility;
 import play.classloading.ApplicationClasses;
 import play.classloading.enhancers.Enhancer;
+import play.db.jpa.Model;
 import play.modules.oracle.annotations.NoSequence;
 import play.modules.oracle.annotations.Sequence;
+import play.modules.oracle.exceptions.OracleException;
 
 import javax.persistence.*;
+import java.util.Map;
 
 public class OracleEnhancer extends Enhancer {
 
     private CtClass ctClass;
     private ConstPool constPool;
+
+    private static final String SUFFIX_SEQ = "seq";
+    private static final String SUFFIX_GEN = "gen";
+
 
     @Override
     public void enhanceThisClass(ApplicationClasses.ApplicationClass appClass) throws Exception {
@@ -49,7 +56,53 @@ public class OracleEnhancer extends Enhancer {
         ctClass.defrost();
     }
 
+    private void checkOracleNames() throws Exception {
+//        // Check jpa.ddl= validate | update | create | create-drop | none
+//        String ddl = play.Play.configuration.getProperty("jpa.ddl", ""); //maybe email
+//        if (!ddl.equals("none")) {
+//            return;
+//        }
+
+//        // Review if
+//        Map.Entry<CtClass, CtField> modelField = EnhancerUtility.modelHavingFieldAnnotatedWithId(ctClass);
+//        CtClass model = modelField.getKey();
+//        CtField field = modelField.getValue();
+//        if (!model.getName().equals(Model.class.getName())) {
+//            // TODO: What the hell I was gonna do??? Id name?
+//            if (field.getName().length() > 30) {
+//                // Throw exception
+//                throw new OracleException(String.format("Explicit Id Name [%s] exceeds 30 chars", field));
+//            }
+//        }
+
+        // Review if table name > 30
+        String tableName = getTableName();
+        if (tableName != null) {
+            if (tableName.length() > 30) {
+                // Throw exception
+                throw new OracleException(String.format("Explicit Table Name [%s] exceeds 30 chars", tableName));
+            }
+        } else {
+           if (getModelName().length() > 30) {
+               throw new OracleException(String.format("Implicit Table Name [%s] exceeds 30 chars", getModelName()));
+           }
+        }
+
+        // Review if Sequence.name > 30
+        String sequenceName = getSequenceName();
+        if (sequenceName != null) {
+            if (sequenceName.length() > 30) {
+                throw new OracleException(String.format("Implicit Sequence Name [%s] exceeds 30 chars", sequenceName));
+            }
+        }
+
+        // So far, so good
+    }
+
     private boolean isEnhanceableThisClass() throws Exception {
+        // Only enhance model if oracle names (table, sequence, etc.) are acceptable (less or equal than 30 chars)
+        checkOracleNames();
+
         // Only enhance model classes.
         if (!EnhancerUtility.isAModel(classPool, ctClass)) {
             return false;
@@ -65,11 +118,20 @@ public class OracleEnhancer extends Enhancer {
             return false;
         }
 
-        // TODO: Skip enhance model classes if inherit from Model
+        // Skip enhance model classes if inherit from Model
+        if (EnhancerUtility.inheritsFromModel(ctClass)) {
+            return false;
+        }
 
-        // TODO: Skip enhance model classes if already has a field annotated with @Id
+        // Skip enhance model classes if already has a field annotated with @Id
+        if (EnhancerUtility.hasModelFieldAnnotatedWithIdWithinInheritance(ctClass)) {
+            return false;
+        }
 
-        // TODO: Skip enhance model classes if already has a field named "id"
+        // Skip enhance model classes if already has a field named "id"
+        if (EnhancerUtility.hasModelFieldWithinInheritance(ctClass, "id")) {
+            return false;
+        }
 
         // Do enhance this class
         return true;
@@ -84,59 +146,130 @@ public class OracleEnhancer extends Enhancer {
     }
     
     private String obtainSequenceName() {
+        String seqName;
+
         try {
             // 1. First try to get an explicit sequenceName
-            String seqName = getSequenceName();
+            seqName = getSequenceName();
             if (seqName != null && !seqName.isEmpty()) {
-                return seqName;    
+                return seqName;
             }
 
             // 2. Second try to get an explicit tableName
             String tableName = getTableName();
             if (tableName != null && !tableName.isEmpty()) {
-                return String.format("%s_seq", tableName); // TODO: What if table_name_seq > 30
+                return formatOracleName(tableName, SUFFIX_SEQ);
             }
         } catch (Exception e) {
             // Do nothing...
         }
 
         // 3. If there's no sequenceName or tableName then create a default name
-        return String.format("%s_seq", ctClass.getSimpleName()); // TODO: What if model_name_seq > 30
+        return formatOracleName(ctClass.getSimpleName(), SUFFIX_SEQ);
     }
 
     private String getSequenceName() throws Exception {
-        String name = null;
+        String sequenceName = null;
         if (isClassAnnotatedWithSequence()) {
             Sequence sequence = (Sequence) EnhancerUtility.getAnnotation(ctClass, Sequence.class);
-            name = sequence.name();
+            sequenceName = sequence.name();
         }
-        return name;               
+        return sequenceName;
+    }
+    
+    private int getSequenceInitValue() throws Exception {
+        int initValue = 1;  // default value
+        if (isClassAnnotatedWithSequence()) {
+            Sequence sequence = (Sequence) EnhancerUtility.getAnnotation(ctClass, Sequence.class);
+            initValue = sequence.initValue();
+        }
+        return initValue;
+    }
+
+    private int getSequenceStepValue() throws Exception {
+        int stepValue = 1;  // default value
+        if (isClassAnnotatedWithSequence()) {
+            Sequence sequence = (Sequence) EnhancerUtility.getAnnotation(ctClass, Sequence.class);
+            stepValue = sequence.stepValue();
+        }
+        return stepValue;
     }
 
     private String getTableName() throws ClassNotFoundException {
-        Table table = (Table) EnhancerUtility.getAnnotation(ctClass, Table.class);
-        if (table != null) {
-            return table.name();
+        Table tableName = (Table) EnhancerUtility.getAnnotation(ctClass, Table.class);
+        if (tableName != null) {
+            return tableName.name();
         }
         return null;
     }
+    
+    private String getModelName() {
+        return ctClass.getSimpleName();
+    }
 
     private String obtainGeneratorName() {
+        String generatorName;
+
         try {
             // 1. First try to get an explicit tableName
-            String tableName = getTableName();
-            if (tableName != null && !tableName.isEmpty()) {
-                return String.format("%s_gen", tableName); // TODO: What if table_name_seq > 30
+            generatorName = getTableName();
+            if (generatorName != null && !generatorName.isEmpty()) {
+                generatorName = String.format("%s_%s", generatorName, SUFFIX_GEN);
+                return generatorName;
             }
         } catch (Exception e) {
             // Do nothing...
         }
 
         // 3. If there's no sequenceName or tableName then create a default name
-        return String.format("%s_gen", ctClass.getSimpleName()); // TODO: What if model_name_seq > 30
+        generatorName = String.format("%s_%s", getModelName(), SUFFIX_GEN);
+        return generatorName;
+    }
+    
+    private String formatOracleName(String name, String suffix) {
+        // Oracle names length mustn't exceed 30 chars
+
+        String compoundName = String.format("%s_%s", name, suffix);
+        if (compoundName.length() > 30) {
+            compoundName = removeSomeChars(compoundName);
+        }
+        return compoundName;
+    }
+    
+    private String removeSomeChars(String oracleName) {
+        play.Logger.warn("WARNING - In order to have an acceptable oracle name, some chars will be removed from: %s", oracleName);
+
+        StringBuilder sb = new StringBuilder(oracleName).reverse();
+        int i = 0;
+        while (i <= 30) {
+            char c = sb.charAt(i);
+            switch (c) {
+                case 'a':
+                case 'e':
+                case 'i':
+                case 'o':
+                case 'u':
+                case '_':
+                    sb.deleteCharAt(i); // remove it from StringBuilder
+                    // keep the last index: i
+                    if (sb.length() == 30) {
+                        play.Logger.warn("WARNING - New oracle name after removing vowels and underscores: %s", sb.reverse().toString());
+                        return sb.reverse().toString();
+                    }
+                    continue;
+                default: // any other char
+                    i++;
+            }
+        }
+
+        play.Logger.warn("WARNING - Even after removing vowels and underscores the length is greater than 30");
+        sb.reverse().delete(31, sb.length());
+        play.Logger.warn("WARNING - New oracle name after removing consonants: %s", sb.toString());
+
+        return sb.toString();
     }
 
-    private void createIdField() throws CannotCompileException, NotFoundException {
+    private void createIdField() throws Exception {
         // Create track_data field
         String code = "private Long id;";
         CtField id = CtField.make(code, ctClass);
@@ -161,17 +294,17 @@ public class OracleEnhancer extends Enhancer {
         annot.addMemberValue("sequenceName", stringValue);
         attr.addAnnotation(annot);
         // -----
-        IntegerMemberValue intValue = new IntegerMemberValue(constPool);
-        intValue.setValue(1);
-        annot.addMemberValue("initialValue", intValue);
+        IntegerMemberValue initValue = new IntegerMemberValue(constPool);
+        initValue.setValue(getSequenceInitValue());
+        annot.addMemberValue("initialValue", initValue);
         attr.addAnnotation(annot);
         // -----
-        intValue = new IntegerMemberValue(constPool);
-        intValue.setValue(1);
-        annot.addMemberValue("allocationSize", intValue);
+        IntegerMemberValue stepValue = new IntegerMemberValue(constPool);
+        stepValue.setValue(getSequenceStepValue());
+        annot.addMemberValue("allocationSize", stepValue);
         attr.addAnnotation(annot);
 
-        // Annotate id with @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
+        // Annotate id with @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="generator_name")
         annot = new Annotation(GeneratedValue.class.getName(), constPool);
         // -----
         EnumMemberValue enumValue = new EnumMemberValue(constPool);
@@ -179,7 +312,7 @@ public class OracleEnhancer extends Enhancer {
         enumValue.setValue(GenerationType.SEQUENCE.name());
         annot.addMemberValue("strategy", enumValue);
         attr.addAnnotation(annot);
-//        // -----
+        // -----
         stringValue = new StringMemberValue(constPool);
         stringValue.setValue(obtainGeneratorName());
         annot.addMemberValue("generator", stringValue);

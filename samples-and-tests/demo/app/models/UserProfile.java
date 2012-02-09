@@ -10,19 +10,25 @@ import play.data.validation.Max;
 import play.data.validation.Min;
 import play.data.validation.Required;
 import play.db.jpa.GenericModel;
+import play.db.jpa.Model;
+import play.modules.oracle.annotations.Sequence;
 
 import javax.persistence.*;
 import javax.persistence.GeneratedValue;
+import javax.persistence.SequenceGenerator;
+import java.lang.String;
 
 @Entity
-@Table(name = "user_profiles")
+@Table(name = "user_profiles_xtreme_long_name")
+@Sequence(name = "my_fkn_seq", stepValue = 2)
 public class UserProfile extends GenericModel {
 
 //    @Id
 //    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator = "user_profiles_two_id_seq_gen")
 //    @SequenceGenerator(name="user_profiles_two_id_seq_gen", sequenceName = "user_profiles_two_id_seq", initialValue = 1, allocationSize = 1)
 //    @Id @GeneratedValue public Long id;
-//    @Id public Long id;
+//    @Id @SequenceGenerator(name = "aName", initialValue = 1, allocationSize = 1) public Long id
+//    public String id;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")

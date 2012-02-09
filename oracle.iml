@@ -17,6 +17,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="play-1.2.4" level="application" />
   </component>
 </module>
 

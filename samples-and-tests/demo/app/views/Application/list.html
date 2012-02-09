@@ -17,10 +17,12 @@
         <div>
         *{#{displayUserProfile user:user, user_profile:user_profile /}}*
         *{<div class="field model clearfix">}*
+            *{field 'user'}*
             #{field 'user.id'}
                 <label class="model-header col col_2">&{field.name}: </label>
                 <b><span class="model-field col col_7">${user.id}    </span></b>
             #{/field}
+            *{#{/field}}*
         *{</div>}*
         *{<div class="field model clearfix">}*
             #{field 'user_profile.id'}
