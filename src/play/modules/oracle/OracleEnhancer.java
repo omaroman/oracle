@@ -44,6 +44,9 @@ public class OracleEnhancer extends Enhancer {
             return; // Do NOT enhance this class
         }
 
+        // Only enhance model if oracle names (table, sequence, etc.) are acceptable (less or equal than 30 chars)
+        checkOracleNames();
+
 //        injectSequenceGeneratorAnnotation();
         createIdField();
         createIdAccessorMethods();
@@ -100,9 +103,6 @@ public class OracleEnhancer extends Enhancer {
     }
 
     private boolean isEnhanceableThisClass() throws Exception {
-        // Only enhance model if oracle names (table, sequence, etc.) are acceptable (less or equal than 30 chars)
-        checkOracleNames();
-
         // Only enhance model classes.
         if (!EnhancerUtility.isAModel(classPool, ctClass)) {
             return false;
