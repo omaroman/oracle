@@ -20,7 +20,7 @@ public class UserAddress extends GenericModel {
 //    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator = "user_addresses_two_id_seq_gen")
 //    @SequenceGenerator(name="user_addresses_two_id_seq_gen", sequenceName = "user_addresses_two_id_seq", initialValue = 1, allocationSize = 1)
 //    @Id @GeneratedValue public Long id;
-//    @Id public Long id;
+    //@Id private Long id;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")

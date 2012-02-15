@@ -7,6 +7,7 @@
 package play.modules.oracle;
 
 import javassist.*;
+import javassist.bytecode.AccessFlag;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
@@ -123,13 +124,13 @@ public class OracleEnhancer extends Enhancer {
             return false;
         }
 
-        // Skip enhance model classes if doesn't have a field annotated with @Id
-        if (!EnhancerUtility.hasModelFieldAnnotatedWithIdWithinInheritance(ctClass)) {
+        // Skip enhance model classes if already has a field annotated with @Id
+        if (EnhancerUtility.hasModelFieldAnnotatedWithIdWithinInheritance(ctClass)) {
             return false;
         }
 
-        // Skip enhance model classes if doesn't have a field named "id"
-        if (!EnhancerUtility.hasModelFieldWithinInheritance(ctClass, "id")) {
+        // Skip enhance model classes if already has a field named "id"
+        if (EnhancerUtility.hasModelFieldWithinInheritance(ctClass, "id")) {
             return false;
         }
 
@@ -272,14 +273,16 @@ public class OracleEnhancer extends Enhancer {
     private void createIdField() throws Exception {
         
         // 1. Try to get a field named id:Long|long
-        Map.Entry<CtClass, CtField> modelField = EnhancerUtility.modelHavingFieldAnnotatedWithId(ctClass);
-        //CtClass c = modelField.getKey();
-        CtField id = modelField.getValue();
+        /*Map.Entry<CtClass, CtField> modelField = EnhancerUtility.modelHavingFieldAnnotatedWithId(ctClass);
+        CtClass c = modelField.getKey();
+        CtField f = modelField.getValue();
+        c.removeField(f);*/
+        //id.getFieldInfo().setAccessFlags(AccessFlag.PUBLIC);
 
         // Create track_data field
-        /*String code = "private Long id;";
+        String code = "public Long id;";
         CtField id = CtField.make(code, ctClass);
-        ctClass.addField(id);*/
+        ctClass.addField(id);
 
         // NOTE: Just create one and only one instance of AnnotationsAttribute, so that multiple annotations
         // for "id" field are injected correctly
