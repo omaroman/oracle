@@ -124,6 +124,11 @@ public class OracleEnhancer extends Enhancer {
             return false;
         }
 
+        // Skip enhance model classes if doesn't inherit from OracleModel
+        if (!EnhancerUtility.inheritsFromClass(ctClass, OracleModel.class)) {
+            return false;
+        }
+
         // Skip enhance model classes if already has a field annotated with @Id
         if (EnhancerUtility.hasModelFieldAnnotatedWithIdWithinInheritance(ctClass)) {
             return false;

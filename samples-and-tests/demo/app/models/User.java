@@ -9,13 +9,14 @@ import net.sf.oval.constraint.MaxLength;
 import play.data.validation.Required;
 import play.data.validation.Unique;
 import play.db.jpa.GenericModel;
+import play.modules.oracle.OracleModel;
 
 import javax.persistence.*;
-import javax.persistence.GeneratedValue;
+
 
 @Entity
 @Table(name = "users")
-public class User extends GenericModel {
+public class User extends OracleModel {
 
 //    @Id
 //    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator = "users_two_id_seq_gen")

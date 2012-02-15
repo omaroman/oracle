@@ -11,6 +11,7 @@ import play.data.validation.Min;
 import play.data.validation.Required;
 import play.db.jpa.GenericModel;
 import play.db.jpa.Model;
+import play.modules.oracle.OracleModel;
 import play.modules.oracle.annotations.Sequence;
 
 import javax.persistence.*;
@@ -21,7 +22,7 @@ import java.lang.String;
 @Entity
 @Table(name = "user_profiles_xtreme_long_name")
 @Sequence(name = "my_own_seq", stepValue = 2)
-public class UserProfile extends GenericModel {
+public class UserProfile extends OracleModel {
 
 //    @Id
 //    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator = "user_profiles_two_id_seq_gen")
