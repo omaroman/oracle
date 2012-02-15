@@ -8,6 +8,7 @@ package play.modules.oracle.interfaces;
 
 public interface IdAccessable {
     
+    public Long id();
     public Long getId();
     public void setId(Long id);
 }

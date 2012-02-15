@@ -14,6 +14,10 @@ public class OracleModel extends GenericModel implements IdAccessable {
     // The following methods are intended to ease the develop and compile phases
     // Later, those methods are overridden via bytecode enhancement
 
+    public Long id() {
+        return 0L;
+    }
+
     public Long getId() {
         return 0L;
     }

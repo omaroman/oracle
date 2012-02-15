@@ -341,7 +341,11 @@ public class OracleEnhancer extends Enhancer {
     }
 
     private void createIdAccessorMethods() throws CannotCompileException {
-        String code = "public Long getId(){return id;}";
+        String code = "public Long id(){return id;}";
+        final CtMethod id = CtMethod.make(code, ctClass);
+        ctClass.addMethod(id);
+
+        code = "public Long getId(){return id;}";
         final CtMethod getId = CtMethod.make(code, ctClass);
         ctClass.addMethod(getId);
         
