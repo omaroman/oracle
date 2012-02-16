@@ -5,13 +5,11 @@
  */
 package models;
 
+import models.oracle.OracleModel;
 import net.sf.oval.constraint.MaxLength;
 import play.data.validation.Required;
-import play.db.jpa.GenericModel;
-import play.modules.oracle.OracleModel;
 
 import javax.persistence.*;
-import javax.persistence.GeneratedValue;
 
 @Entity
 @Table(name = "user_addresses")

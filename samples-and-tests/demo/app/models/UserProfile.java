@@ -5,18 +5,12 @@
  */
 package models;
 
+import models.oracle.OracleModel;
 import net.sf.oval.constraint.MaxLength;
-import play.data.validation.Max;
-import play.data.validation.Min;
 import play.data.validation.Required;
-import play.db.jpa.GenericModel;
-import play.db.jpa.Model;
-import play.modules.oracle.OracleModel;
 import play.modules.oracle.annotations.Sequence;
 
 import javax.persistence.*;
-import javax.persistence.GeneratedValue;
-import javax.persistence.SequenceGenerator;
 import java.lang.String;
 
 @Entity

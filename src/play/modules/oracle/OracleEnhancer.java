@@ -7,7 +7,6 @@
 package play.modules.oracle;
 
 import javassist.*;
-import javassist.bytecode.AccessFlag;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
@@ -17,13 +16,12 @@ import javassist.bytecode.annotation.StringMemberValue;
 import net.parnassoft.playutilities.EnhancerUtility;
 import play.classloading.ApplicationClasses;
 import play.classloading.enhancers.Enhancer;
-import play.db.jpa.Model;
+import play.db.jpa.GenericModel;
 import play.modules.oracle.annotations.NoSequence;
 import play.modules.oracle.annotations.Sequence;
 import play.modules.oracle.exceptions.OracleException;
 
 import javax.persistence.*;
-import java.util.Map;
 
 public class OracleEnhancer extends Enhancer {
 
@@ -48,12 +46,13 @@ public class OracleEnhancer extends Enhancer {
         // Only enhance model if oracle names (table, sequence, etc.) are acceptable (less or equal than 30 chars)
         checkOracleNames();
 
-//        injectSequenceGeneratorAnnotation();
-        createIdField();
-        createIdAccessorMethods();
+        alterIdField();
+        /*if (ctClass.getDeclaredField("id") == null) {
+            createIdAccessorMethods();
+        }*/
         create_keyMethod();
 
-        play.Logger.debug("ENHANCED: %s", ctClass.getName());
+        play.Logger.debug("ORACLE ENHANCED: %s", ctClass.getName());
 
         // Done - Enhance Class.
         appClass.enhancedByteCode = ctClass.toBytecode();
@@ -104,15 +103,25 @@ public class OracleEnhancer extends Enhancer {
     }
 
     private boolean isEnhanceableThisClass() throws Exception {
+
         // Only enhance model classes.
         if (!EnhancerUtility.isAModel(classPool, ctClass)) {
             return false;
         }
 
-        // Only enhance model classes with Entity annotation.
-        if (!EnhancerUtility.isAnEntity(ctClass)) {
+        // Only enhance model classes with either Entity or MappedSuperClass annotation.
+        /*if (!EnhancerUtility.isAnEntity(ctClass)) {
+            play.Logger.debug("SCOPE 1");
             return false;
-        }
+        }*/
+        /*if (!EnhancerUtility.isMappedSuperclass(ctClass)) {
+            play.Logger.debug("SCOPE 1");
+            return false;
+        }*/
+        /*if (!EnhancerUtility.isAnEntity(ctClass) || !EnhancerUtility.isMappedSuperclass(ctClass)) {
+            play.Logger.debug("SCOPE");
+            return false;
+        }*/
 
         // Skip enhance model classes if are annotated with @NoTracking
         if (isClassAnnotatedWithNoSequence()) {
@@ -124,20 +133,28 @@ public class OracleEnhancer extends Enhancer {
             return false;
         }
 
-        // Skip enhance model classes if doesn't inherit from OracleModel
-        if (!EnhancerUtility.inheritsFromClass(ctClass, OracleModel.class)) {
+        // Skip enhance model classes if doesn't inherit from GenericModel
+        if (!EnhancerUtility.inheritsFromClass(ctClass, GenericModel.class)) {
             return false;
         }
 
-        // Skip enhance model classes if already has a field annotated with @Id
-        if (EnhancerUtility.hasModelFieldAnnotatedWithIdWithinInheritance(ctClass)) {
+        // Skip enhance model classes if doesn't have a field annotated with @Id
+        if (!EnhancerUtility.hasFieldAnnotatedWithId(ctClass)) {
             return false;
         }
 
-        // Skip enhance model classes if already has a field named "id"
-        if (EnhancerUtility.hasModelFieldWithinInheritance(ctClass, "id")) {
+        /*// Skip enhance model classes if doesn't have a field annotated with @Id
+        if (!EnhancerUtility.hasModelFieldAnnotatedWithIdWithinInheritance(ctClass)) {
             return false;
-        }
+        }*/
+
+        /*// Skip enhance model classes if doesn't have a field named "id"
+        try {
+            ctClass.getDeclaredField("id");
+        } catch (NotFoundException e) {
+            return false;
+        }*/
+
 
         // Do enhance this class
         return true;
@@ -275,19 +292,19 @@ public class OracleEnhancer extends Enhancer {
         return sb.toString();
     }
 
-    private void createIdField() throws Exception {
-        
-        // 1. Try to get a field named id:Long|long
-        /*Map.Entry<CtClass, CtField> modelField = EnhancerUtility.modelHavingFieldAnnotatedWithId(ctClass);
-        CtClass c = modelField.getKey();
-        CtField f = modelField.getValue();
-        c.removeField(f);*/
-        //id.getFieldInfo().setAccessFlags(AccessFlag.PUBLIC);
+    private void alterIdField() throws Exception {
+
+        CtField idField = EnhancerUtility.getFieldAnnotatedWithId(ctClass);
+
+        //CtField id = ctClass.getDeclaredField("id");
+        //id.setName("_id");
 
         // Create track_data field
-        String code = "public Long id;";
-        CtField id = CtField.make(code, ctClass);
-        ctClass.addField(id);
+        /*String code = "public Long id;";
+        id = CtField.make(code, ctClass);
+        ctClass.addField(id);*/
+
+
 
         // NOTE: Just create one and only one instance of AnnotationsAttribute, so that multiple annotations
         // for "id" field are injected correctly
@@ -337,19 +354,23 @@ public class OracleEnhancer extends Enhancer {
         attr.addAnnotation(annot);
 
         // Add all annotations to id field
-        id.getFieldInfo().addAttribute(attr);
+        idField.getFieldInfo().addAttribute(attr);
     }
 
-    private void createIdAccessorMethods() throws CannotCompileException {
-        String code = "public Long id(){return id;}";
+    private void createIdAccessorMethods() throws CannotCompileException, ClassNotFoundException {
+        CtField idField = EnhancerUtility.getFieldAnnotatedWithId(ctClass);
+
+        // TODO: Warn if already exists the following methods
+
+        String code = String.format("public Long id(){return %s;}", idField.getName());
         final CtMethod id = CtMethod.make(code, ctClass);
         ctClass.addMethod(id);
 
-        code = "public Long getId(){return id;}";
+        code = String.format("public Long getId(){return %s;}", idField.getName());
         final CtMethod getId = CtMethod.make(code, ctClass);
         ctClass.addMethod(getId);
         
-        code = "public void setId(Long id){this.id = id;}";
+        code = String.format("public void setId(Long id){%s = id;}", idField.getName());
         final CtMethod setId = CtMethod.make(code, ctClass);
         ctClass.addMethod(setId);
     }

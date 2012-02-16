@@ -5,11 +5,10 @@
  */
 package models;
 
+import models.oracle.OracleModel;
 import net.sf.oval.constraint.MaxLength;
 import play.data.validation.Required;
 import play.data.validation.Unique;
-import play.db.jpa.GenericModel;
-import play.modules.oracle.OracleModel;
 
 import javax.persistence.*;
 

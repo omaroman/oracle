@@ -6,6 +6,7 @@
 
 package play.modules.oracle.annotations;
 
+
 public @interface Sequence {
     public String name() default "";
     public int initValue() default 1;
