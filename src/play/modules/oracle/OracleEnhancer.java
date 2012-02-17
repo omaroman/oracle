@@ -376,8 +376,10 @@ public class OracleEnhancer extends Enhancer {
     }
     
     
-    private void create_keyMethod() throws CannotCompileException {
-        String code = "public Object _key(){return getId();}";
+    private void create_keyMethod() throws CannotCompileException, ClassNotFoundException {
+        CtField idField = EnhancerUtility.getFieldAnnotatedWithId(ctClass);
+
+        String code = String.format("public Object _key(){return %s;}", idField.getName());
         final CtMethod _key = CtMethod.make(code, ctClass);
         ctClass.addMethod(_key);
 
