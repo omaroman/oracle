@@ -5,9 +5,9 @@
  */
 package models;
 
-import models.oracle.OracleModel;
 import net.sf.oval.constraint.MaxLength;
 import play.data.validation.Required;
+import play.db.jpa.GenericModel;
 import play.modules.oracle.annotations.Sequence;
 
 import javax.persistence.*;
@@ -16,14 +16,14 @@ import java.lang.String;
 @Entity
 @Table(name = "user_profiles_xtreme_long_name")
 @Sequence(name = "my_own_seq", stepValue = 2)
-public class UserProfile extends OracleModel {
+public class UserProfile extends GenericModel {
 
 //    @Id
 //    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator = "user_profiles_two_id_seq_gen")
 //    @SequenceGenerator(name="user_profiles_two_id_seq_gen", sequenceName = "user_profiles_two_id_seq", initialValue = 1, allocationSize = 1)
 //    @Id @GeneratedValue public Long id;
 //    @Id @SequenceGenerator(name = "aName", initialValue = 1, allocationSize = 1) public Long id
-    //@Id private String id;
+    @Id public Long id;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")

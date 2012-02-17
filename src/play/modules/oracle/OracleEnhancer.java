@@ -140,16 +140,37 @@ public class OracleEnhancer extends Enhancer {
 
         // Skip enhance model classes if doesn't have a field annotated with @Id
         if (!EnhancerUtility.hasFieldAnnotatedWithId(ctClass)) {
+            // TODO: Check if it instanceof Long
             return false;
         }
+        
+        /*boolean r = false;
+        for(CtField ctField : ctClass.getFields()) {
+            play.Logger.debug("%s.%s", ctClass.getName(), ctField.getName());
+            for (Object o: ctField.getAnnotations()) {
+                java.lang.annotation.Annotation a = (java.lang.annotation.Annotation) o;
+                play.Logger.debug(a.toString());
+                if (a.annotationType().getName().equals(Id.class.getName())) {
+                    play.Logger.debug("@Id FOUND...............");
+                    r = true;
+                    break;
+                }
+            }
+            if (hasAnnotation(ctField, Id.class.getName())) {
+                r = true;
+                break;
+            }
+        }
+        if (!r) return false;*/
+        
 
-        /*// Skip enhance model classes if doesn't have a field annotated with @Id
-        if (!EnhancerUtility.hasModelFieldAnnotatedWithIdWithinInheritance(ctClass)) {
+        // Skip enhance model classes if doesn't have a field annotated with @Id
+        /*if (!EnhancerUtility.hasModelFieldAnnotatedWithIdWithinInheritance(ctClass)) {
             return false;
         }*/
 
-        /*// Skip enhance model classes if doesn't have a field named "id"
-        try {
+        // Skip enhance model classes if doesn't have a field named "id"
+        /*try {
             ctClass.getDeclaredField("id");
         } catch (NotFoundException e) {
             return false;

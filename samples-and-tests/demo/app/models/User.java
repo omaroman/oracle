@@ -5,23 +5,23 @@
  */
 package models;
 
-import models.oracle.OracleModel;
 import net.sf.oval.constraint.MaxLength;
 import play.data.validation.Required;
 import play.data.validation.Unique;
+import play.db.jpa.GenericModel;
 
 import javax.persistence.*;
 
 
 @Entity
 @Table(name = "users")
-public class User extends OracleModel {
+public class User extends GenericModel {
 
 //    @Id
 //    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator = "users_two_id_seq_gen")
 //    @SequenceGenerator(name="users_two_id_seq_gen", sequenceName = "users_two_id_seq", initialValue = 1, allocationSize = 1)
 //    @Id @GeneratedValue public Long id;
-    //@Id public Long id;
+    @Id public Long id;
 
     @OneToOne(mappedBy = "user")
     public UserProfile user_profile; // = new UserProfile();     // has_one :user_profile
