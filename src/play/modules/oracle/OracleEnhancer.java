@@ -140,11 +140,15 @@ public class OracleEnhancer extends Enhancer {
 
         // Skip enhance model classes if doesn't have a field annotated with @Id
         if (!EnhancerUtility.hasFieldAnnotatedWithId(ctClass)) {
-            CtField id = EnhancerUtility.getFieldAnnotatedWithId(ctClass);
-            if (EnhancerUtility.fieldType(id) != Long.class) {
-                play.Logger.warn("WARNING: id field is of type %s and must be Long type", id.getType());
-                return false;
-            }
+            play.Logger.warn("WARNING: there is NO fields annotated with @Id");
+            return false;
+        }
+
+        // Skip enhance model classes if field annotated with @Id is not of type Long
+        CtField primaryKey = EnhancerUtility.getFieldAnnotatedWithId(ctClass);
+        if (EnhancerUtility.fieldType(primaryKey) != Long.class) {
+            play.Logger.warn("WARNING: primary key field is of type %s and must be Long type", primaryKey.getType());
+            return false;
         }
 
         // Skip enhance model classes if doesn't have a field annotated with @Id
